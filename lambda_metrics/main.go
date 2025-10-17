@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -69,8 +68,8 @@ func main() {
 
 	flag.Parse()
 
-	switch {
-	case strings.Compare(*toolName, "lambda") == 0:
+	switch *toolName {
+	case "lambda":
 		{
 			var err error
 			fmt.Println("Running lambda tool")
