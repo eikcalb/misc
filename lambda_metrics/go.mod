@@ -1,4 +1,4 @@
-module misc
+module lambda_metrics
 
 go 1.23.1
 
