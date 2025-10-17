@@ -56,6 +56,11 @@ func getConfig() (c *PollerConfig, err error) {
 		return nil, errors.New("a valid environment must be provided")
 	}
 
+	ingressEndpointFormat := os.Getenv(ENV_INGRESS_ENDPOINT_PATTERN)
+	if len(ingressEndpointFormat) == 0 {
+		return nil, errors.New("ingress endpoint format must be provided")
+	}
+
 	ingressEndpoint := fmt.Sprintf(os.Getenv(ENV_INGRESS_ENDPOINT_PATTERN), env)
 
 	interval, err := time.ParseDuration(*intervalStr)

@@ -1,0 +1,4 @@
+github.com/eikcalb/misc/golang-utils v0.0.0-20251017181623-881e6cbef059 h1:FquFVyhlaKEaBVLPcslcT55QMm1clDRoqtM+aticc9g=
+github.com/eikcalb/misc/golang-utils v0.0.0-20251017181623-881e6cbef059/go.mod h1:LIRAV9LpZ5gBXqcAkqnxqVAXZXN7Eq6ZyAelNIjUq/Y=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
