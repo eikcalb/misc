@@ -45,6 +45,8 @@ func ReadModeMap(args []string, logger *slog.Logger) error {
 	json.Unmarshal(inputData, &modeMap)
 
 	walkFunc := func(path string, entry fs.DirEntry, err error) error {
+		logger.Debug("Processing", "path", path)
+
 		if err != nil && !*ignoreInaccessibleFiles {
 			logger.Error("Error occurred while reading path", "cause", err, "path", path)
 			return err
@@ -61,7 +63,7 @@ func ReadModeMap(args []string, logger *slog.Logger) error {
 		}
 
 		targetMode := modeMap[path]
-		err = os.Chmod(path, targetMode)
+		err = os.Chmod(filepath.Join(*rootDir, path), targetMode)
 		if err != nil && !*ignoreInaccessibleFiles {
 			logger.Error("Failed to change file mode", "cause", err, "path", path, "entry", entry)
 			return errors.Join(errors.New("failed to change file mode"), err)

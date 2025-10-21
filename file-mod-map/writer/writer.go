@@ -72,7 +72,7 @@ func WriteModeMap(args []string, logger *slog.Logger) error {
 		return errors.New("failed to encode mode map")
 	}
 
-	err = os.WriteFile(*outputFileName, encoded, 0644)
+	err = os.WriteFile(filepath.Join(*rootDir, *outputFileName), encoded, 0644)
 	if err != nil {
 		logger.Error("Failed to write output", "cause", err)
 		return errors.New("failed to write output")
