@@ -42,7 +42,7 @@ type PollerConfig struct {
 func getConfig() (c *PollerConfig, err error) {
 	fs := flag.NewFlagSet("poller", flag.ExitOnError)
 	interval := fs.Duration("d", time.Duration(5), "Polling interval duration")
-	environment := fs.String("e", "", "Ingress endpoint URL")
+	environment := fs.String("e", "", "Ingress endpoint environment")
 
 	err = fs.Parse(os.Args[1:])
 	if err != nil {
