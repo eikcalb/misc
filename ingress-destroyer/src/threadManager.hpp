@@ -54,7 +54,10 @@ public:
 
     void Stop()
     {
-        std::cout << "Stopping threads" << std::endl;
+        if (!isRunning.load())
+        {
+            return;
+        }
 
         isRunning.store(false);
         condition.notify_all();
@@ -66,6 +69,10 @@ public:
                 thread.join();
             }
         }
+
+        std::cout << std::endl
+                  << "Stopped threads"
+                  << std::endl;
     }
 
 private:

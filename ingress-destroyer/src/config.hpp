@@ -6,6 +6,7 @@ const char *CA_PATH_ENV = "CA";
 const char *CERT_PATH_ENV = "CERT";
 const char *CERT_KEY_PATH_ENV = "CERT_KEY";
 const char *ENDPOINT_ENV = "ENDPOINT";
+const char *PAYLOAD_ENV = "PAYLOAD";
 
 struct Config
 {
@@ -13,6 +14,7 @@ struct Config
     std::string certPath;
     std::string certKeyPath;
     std::string endpoint;
+    std::string payload;
 
 private:
     std::string getEnv(const char *key, std::string defValue = "")
@@ -51,6 +53,7 @@ public:
         c.certPath = c.getEnv(CERT_PATH_ENV);
         c.certKeyPath = c.getEnv(CERT_KEY_PATH_ENV);
         c.endpoint = c.getEnv(ENDPOINT_ENV);
+        c.payload = c.getEnv(PAYLOAD_ENV);
 
         return c;
     }

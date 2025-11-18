@@ -40,7 +40,7 @@ private:
         return s;
     }
 
-    void makeRequest(const std::string &url, const std::string &method, const std::string *payload = nullptr)
+    void makeRequest(const std::string url, const std::string method, const std::string *payload = nullptr)
     {
         requestCount++;
 
@@ -50,22 +50,29 @@ private:
             throw std::runtime_error("HTTP setup failed");
         }
 
+        struct curl_slist *list = nullptr;
+
         curl_easy_setopt(handle, CURLOPT_CAINFO, this->config.caPath.c_str());
         curl_easy_setopt(handle, CURLOPT_SSLCERT, this->config.certPath.c_str());
         curl_easy_setopt(handle, CURLOPT_SSLKEY, this->config.certKeyPath.c_str());
         curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, strToUpper(method).c_str());
         curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
+        curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
 
         if (payload != nullptr)
         {
+            list = curl_slist_append(list, "Content-Type: application/json");
+
             curl_easy_setopt(handle, CURLOPT_POSTFIELDS, payload->c_str());
             curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, payload->size());
         }
 
-        size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
+        curl_easy_setopt(handle, CURLOPT_HTTPHEADER, list);
+        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, discard);
 
         const auto res = curl_easy_perform(handle);
+        curl_slist_free_all(list);
 
         if (res != CURLE_OK)
         {
@@ -90,6 +97,11 @@ private:
         }
     }
 
+    static size_t discard(char *, size_t size, size_t nmemb, void *userdata)
+    {
+        return size * nmemb;
+    }
+
 public:
     static Http &GetInstance(const Config &c)
     {
@@ -105,8 +117,7 @@ public:
     void POST(const std::string &path)
     {
         const auto &url = this->config.endpoint + path;
-        const std::string payload = R"({"version":"1.0.0","scheduled":false,"channel":"MOBILE","product":"SOUNDS","type":"MOBILE_ALERT","collapse_key":"6493f88c-1b12-56d2-bf04-9521f92fe62b","data":{"cid":"Cid156350s20s","URL":"Url15615593d0020"},"notification":{"alert":{"body":"Body15615593500201","title":"Title1561559350020"},"badge":"2","image":null,"interaction":{"category":"category"},"sound":"Sound1561559350s020","video":{"vpid":"p05fchjx"},"notificationTag":"6493f88c-1b12-56d2-bf04-9521f92fe62b"},"user_id":"510bc8e6-d91a-448c-b2e2-16cdc30f72d3","devices":["IOS","ANDROID","AMAZON"]})";
 
-        this->makeRequest(url, "POST", &payload);
+        this->makeRequest(url, "POST", &this->config.payload);
     }
 };

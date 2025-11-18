@@ -13,7 +13,7 @@
         "${file}",
 
         "-o",
-        "${fileDirname}/${fileDirnameBasename}",
+        "${fileDirname}/out/${fileDirnameBasename}",
 
         "-lcurl"
       ],
