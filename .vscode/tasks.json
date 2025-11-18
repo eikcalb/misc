@@ -12,15 +12,19 @@
         "-I${fileDirname}/src/**/*.cpp",
         "${file}",
 
-        "-I${fileDirname}/include",
-        "-L${fileDirname}/lib",
-        "-lcurl",
-
         "-o",
-        "${fileDirname}/${fileDirnameBasename}"
+        "${fileDirname}/${fileDirnameBasename}",
+
+        "-lcurl"
       ],
       "options": {
-        "cwd": "${fileDirname}"
+        "cwd": "${fileDirname}",
+        "env": {
+          "ENDPOINT": "https://ingress.notifications.int.bbci.co.uk",
+          "CA": "/private/etc/pki/certificate.pem",
+          "CERT": "/etc/pki/tls/certs/client.crt",
+          "CERT_KEY": "/private/etc/pki/tls/private/client.key"
+        }
       },
       "problemMatcher": ["$gcc"],
       "group": {

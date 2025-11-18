@@ -12,28 +12,21 @@
 class Http
 {
 private:
-    std::string endpoint;
+    Config config;
     std::atomic<unsigned long> requestCount;
-    std::unique_ptr<CURL *> defaultHandle;
 
-    Http(const Config config)
+    Http(const Config config) : config(config)
     {
-        endpoint = config.endpoint;
-
         requestCount.store(0);
 
-        curl_global_init(CURL_GLOBAL_ALL);
-
-        *defaultHandle = curl_easy_init();
-
-        curl_easy_setopt(defaultHandle.get(), CURLOPT_CAINFO, config.caPath.c_str());
-        curl_easy_setopt(defaultHandle.get(), CURLOPT_SSLCERT, config.certPath.c_str());
-        curl_easy_setopt(defaultHandle.get(), CURLOPT_SSLKEY, config.certKeyPath.c_str());
+        if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
+        {
+            throw std::runtime_error("HTTP setup failed");
+        }
     }
 
     ~Http()
     {
-        curl_easy_cleanup(defaultHandle.get());
 
         curl_global_cleanup();
     }
@@ -51,13 +44,18 @@ private:
     {
         requestCount++;
 
-        std::cout << url << std::endl;
+        auto handle = curl_easy_init();
+        if (!handle)
+        {
+            throw std::runtime_error("HTTP setup failed");
+        }
 
-        const auto handle = curl_easy_duphandle(defaultHandle.get());
-
+        curl_easy_setopt(handle, CURLOPT_CAINFO, this->config.caPath.c_str());
+        curl_easy_setopt(handle, CURLOPT_SSLCERT, this->config.certPath.c_str());
+        curl_easy_setopt(handle, CURLOPT_SSLKEY, this->config.certKeyPath.c_str());
         curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, strToUpper(method).c_str());
-        curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 0);
+        curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
 
         if (payload != nullptr)
         {
@@ -68,12 +66,27 @@ private:
         size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
 
         const auto res = curl_easy_perform(handle);
-        curl_easy_cleanup(handle);
 
         if (res != CURLE_OK)
         {
-            std::cout << "❌ Request failed" << std::endl;
+            std::cout << "❌ Request failed: " << curl_easy_strerror(res) << std::endl;
+            curl_easy_cleanup(handle);
+
             throw std::runtime_error("Failed to make network request");
+        }
+
+        curl_easy_cleanup(handle);
+
+        uint httpCode = 0;
+        curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &httpCode);
+
+        if (httpCode < 200 || httpCode >= 300)
+        {
+            std::cout << "🥀";
+        }
+        else
+        {
+            std::cout << "👌";
         }
     }
 
@@ -89,9 +102,11 @@ public:
         return this->requestCount.load();
     }
 
-    void POST(std::string path)
+    void POST(const std::string &path)
     {
-        const auto url = this->endpoint + path;
-        this->makeRequest(url, "POST");
+        const auto &url = this->config.endpoint + path;
+        const std::string payload = R"({"version":"1.0.0","scheduled":false,"channel":"MOBILE","product":"SOUNDS","type":"MOBILE_ALERT","collapse_key":"6493f88c-1b12-56d2-bf04-9521f92fe62b","data":{"cid":"Cid156350s20s","URL":"Url15615593d0020"},"notification":{"alert":{"body":"Body15615593500201","title":"Title1561559350020"},"badge":"2","image":null,"interaction":{"category":"category"},"sound":"Sound1561559350s020","video":{"vpid":"p05fchjx"},"notificationTag":"6493f88c-1b12-56d2-bf04-9521f92fe62b"},"user_id":"510bc8e6-d91a-448c-b2e2-16cdc30f72d3","devices":["IOS","ANDROID","AMAZON"]})";
+
+        this->makeRequest(url, "POST", &payload);
     }
 };

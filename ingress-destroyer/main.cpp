@@ -31,23 +31,33 @@ int main(int argc, char *argv[])
 
     ThreadManager::GetInstance().Start();
 
+    Http &http = Http::GetInstance(config);
+    const auto &path = "/notifications";
+
     // Blocking call to keep the process running until a signal is sent.
     while (!signal_flag)
     {
-        // Start thread manager to make requests to the endpoint specified.
+        //     // Start thread manager to make requests to the endpoint specified.
         ThreadManager::GetInstance()
-            .AddTaskToThread([&]
+            .AddTaskToThread([&config, &http]
                              {
                                  // We will make requests to the endpoint as many times as possible.
-                                 //  Http &http = Http::GetInstance(config);
-                                 //  http.POST("/notifications");
+                                 http.POST(path);
                                  // We do not care what the response is. We only want to make lots of requests.
                              });
 
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(10ms);
     }
 
+    // Stop pending threads.
     ThreadManager::GetInstance().Stop();
+
+    std::cout << std::endl
+              << std::endl
+              << "=============================" << std::endl
+              << "  Total Requests: " << http.GetRequestCount() << std::endl
+              << "=============================" << std::endl
+              << std::endl;
 
     std::cout << std::endl
               << "Application Killed"

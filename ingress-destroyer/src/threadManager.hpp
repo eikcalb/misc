@@ -32,8 +32,11 @@ public:
     // Add a task to the thread pool.
     void AddTaskToThread(Task task)
     {
-        std::lock_guard<std::mutex> lock(tasksMutex);
-        tasks.emplace_back(task);
+        {
+            std::lock_guard<std::mutex> lock(tasksMutex);
+            tasks.emplace_back(std::move(task));
+        }
+
         condition.notify_all();
     }
 
@@ -72,7 +75,6 @@ private:
     std::atomic<bool> isRunning;
 
     std::mutex tasksMutex;
-    std::mutex threadMutex;
 
     ThreadManager()
     {
@@ -111,15 +113,7 @@ private:
             Task task;
             {
 
-                // Get the next task from the task queue.
-                if (isRunning.load() && !tasks.empty())
-                {
-                    std::lock_guard<std::mutex> lockTasks(tasksMutex);
-                    task = std::move(tasks.front());
-                    tasks.pop_front();
-                }
-
-                std::unique_lock<std::mutex> lock(threadMutex);
+                std::unique_lock<std::mutex> lock(tasksMutex);
 
                 // Wait for a task if the task queue is empty.
                 condition.wait(lock, [this]
@@ -131,6 +125,15 @@ private:
 
                     // When a task exists in the queue, this will return true and exit.
                     return !this->tasks.empty(); });
+
+                if (!isRunning.load() && tasks.empty())
+                {
+                    continue;
+                }
+
+                // Get the next task from the task queue.
+                task = std::move(tasks.front());
+                tasks.pop_front();
 
                 lock.unlock();
                 condition.notify_all();
