@@ -43,7 +43,7 @@ public:
     void Start()
     {
         const auto concurrencyCount = getConcurrencyCount();
-        std::cout << "Starting: " << concurrencyCount << "threads" << std::endl;
+        std::cout << "Starting: " << concurrencyCount << " threads" << std::endl;
 
         // Initialize the thread pool.
         for (uint i = 0; i < concurrencyCount; i++)
