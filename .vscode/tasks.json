@@ -8,9 +8,16 @@
         "-fcolor-diagnostics",
         "-fansi-escape-codes",
         "-g",
+        "-I${fileDirname}/src/**/*.hpp",
+        "-I${fileDirname}/src/**/*.cpp",
         "${file}",
+
+        "-I${fileDirname}/include",
+        "-L${fileDirname}/lib",
+        "-lcurl",
+
         "-o",
-        "${fileDirname}/${fileBasenameNoExtension}"
+        "${fileDirname}/${fileDirnameBasename}"
       ],
       "options": {
         "cwd": "${fileDirname}"
