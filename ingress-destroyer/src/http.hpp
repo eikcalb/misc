@@ -58,7 +58,6 @@ private:
         curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, strToUpper(method).c_str());
         curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
-        curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
 
         if (payload != nullptr)
         {
