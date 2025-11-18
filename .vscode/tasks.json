@@ -18,13 +18,7 @@
         "-lcurl"
       ],
       "options": {
-        "cwd": "${fileDirname}",
-        "env": {
-          "ENDPOINT": "https://ingress.notifications.int.bbci.co.uk",
-          "CA": "/private/etc/pki/certificate.pem",
-          "CERT": "/etc/pki/tls/certs/client.crt",
-          "CERT_KEY": "/private/etc/pki/tls/private/client.key"
-        }
+        "cwd": "${fileDirname}"
       },
       "problemMatcher": ["$gcc"],
       "group": {
