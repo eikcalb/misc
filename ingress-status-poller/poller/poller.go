@@ -18,20 +18,19 @@ const (
 	ENVIRONMENT_INT  = "int"
 	ENVIRONMENT_TEST = "test"
 
+	// Production environment.
 	ENVIRONMENT_LIVE = "live"
 )
 
 const (
 	ENV_INGRESS_ENDPOINT_PATTERN = "INGRESS_ENDPOINT_PATTERN"
-)
 
-var (
-	fail    = "❌"
-	success = "✅"
+	CA_PATH       = "/etc/pki/tls/certs/trust.pem"
+	CERT_PATH     = "/etc/pki/tls/certs/client.crt"
+	CERT_KEY_PATH = "/etc/pki/tls/private/client.key"
 
-	ca       = "/etc/pki/tls/certs/trust.pem"
-	cert     = "/etc/pki/tls/certs/client.crt"
-	cert_key = "/etc/pki/tls/private/client.key"
+	FAIL    = "❌"
+	SUCCESS = "✅"
 )
 
 type PollerConfig struct {
@@ -69,9 +68,9 @@ func getConfig() (c *PollerConfig, err error) {
 }
 
 func pingIngress(log *slog.Logger, ingressEndpoint string) {
-	caCert, err := os.ReadFile(ca)
+	caCert, err := os.ReadFile(CA_PATH)
 	if err != nil {
-		log.Error(fail)
+		log.Error(FAIL)
 		log.Debug("Failed to read CA", "cause", err)
 		return
 	}
@@ -79,14 +78,14 @@ func pingIngress(log *slog.Logger, ingressEndpoint string) {
 	caCertPool := x509.NewCertPool()
 	ok := caCertPool.AppendCertsFromPEM(caCert)
 	if !ok {
-		log.Error(fail)
+		log.Error(FAIL)
 		log.Debug("Failed to append CA", "cause", err)
 		return
 	}
 
-	cert, err := tls.LoadX509KeyPair(cert, cert_key)
+	cert, err := tls.LoadX509KeyPair(CERT_PATH, CERT_KEY_PATH)
 	if err != nil {
-		log.Error(fail)
+		log.Error(FAIL)
 		log.Debug("Failed to read certs", "cause", err)
 		return
 	}
@@ -102,12 +101,12 @@ func pingIngress(log *slog.Logger, ingressEndpoint string) {
 
 	resp, err := client.Get(ingressEndpoint)
 	if err != nil || resp.StatusCode != 200 {
-		log.Error(fail)
+		log.Error(FAIL)
 		log.Debug("Failed to contact Ingress", "cause", err)
 		return
 	}
 
-	log.Info(success)
+	log.Info(SUCCESS)
 	resp.Body.Close()
 }
 
