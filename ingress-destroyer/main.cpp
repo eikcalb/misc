@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     // Blocking call to keep the process running until a signal is sent.
     while (!signal_flag)
     {
-        //     // Start thread manager to make requests to the endpoint specified.
+        // Start thread manager to make requests to the endpoint specified.
         ThreadManager::GetInstance()
             .AddTaskToThread([&config, &http]
                              {
