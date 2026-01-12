@@ -82,10 +82,9 @@ public:
         c.certPath = c.getEnv(CERT_PATH_ENV);
         c.certKeyPath = c.getEnv(CERT_KEY_PATH_ENV);
         c.endpoint = c.getEnv(ENDPOINT_ENV);
-        c.endpoint = c.getEnv(ENDPOINT_ENV);
         c.method = c.getEnv(METHOD_ENV);
         c.path = c.getEnv(PATH_ENV);
-        c.payload = c.getEnv(PAYLOAD_ENV);
+        c.payload = c.getEnv(PAYLOAD_ENV, "");
 
         const auto rawHeaders = c.getEnv(PAYLOAD_ENV, "");
         c.parseHeaders(rawHeaders);

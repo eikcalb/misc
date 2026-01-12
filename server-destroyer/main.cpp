@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Welcome to Server Destroyer" << std::endl;
     std::cout << "Endpoint: " << config.endpoint << std::endl;
+    std::cout << "Path: " << config.path << std::endl;
 
     ThreadManager::GetInstance().Start();
 

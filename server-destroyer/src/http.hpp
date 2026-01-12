@@ -50,12 +50,13 @@ private:
         }
 
         struct curl_slist *list = nullptr;
+        const auto uppercaseMethod = strToUpper(method);
 
         curl_easy_setopt(handle, CURLOPT_CAINFO, this->config.caPath.c_str());
         curl_easy_setopt(handle, CURLOPT_SSLCERT, this->config.certPath.c_str());
         curl_easy_setopt(handle, CURLOPT_SSLKEY, this->config.certKeyPath.c_str());
         curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, strToUpper(method).c_str());
+        curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, uppercaseMethod.c_str());
         curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
 
         for (const auto &header : config.headers)
@@ -63,7 +64,7 @@ private:
             list = curl_slist_append(list, header.c_str());
         }
 
-        if (payload != nullptr)
+        if (payload != nullptr && uppercaseMethod != "GET")
         {
             list = curl_slist_append(list, "Content-Type: application/json");
 
