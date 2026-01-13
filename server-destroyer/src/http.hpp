@@ -99,6 +99,8 @@ private:
         {
             std::cout << "👌";
         }
+
+        std::cout << std::flush;
     }
 
     static size_t discard(char *, size_t size, size_t nmemb, void *userdata)
