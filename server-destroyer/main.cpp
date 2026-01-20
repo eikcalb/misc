@@ -25,7 +25,17 @@ int main(int argc, char *argv[])
     std::signal(SIGINT, SignalHandler);  // Handle Ctrl+C (SIGINT)
     std::signal(SIGTERM, SignalHandler); // Handle termination request (SIGTERM)
 
-    const auto config = Config::LoadConfig();
+    Config config;
+
+    if (argc > 1)
+    {
+        std::cout << "Reading config from: " << argv[1] << std::endl;
+        config = Config::LoadConfig(argv[1]);
+    }
+    else
+    {
+        config = Config::LoadConfig();
+    }
 
     std::cout << "Welcome to Server Destroyer" << std::endl;
     std::cout << "Endpoint: " << config.endpoint << std::endl;

@@ -39,7 +39,7 @@ private:
         return s;
     }
 
-    void makeRequest(const std::string url, const std::string method, const std::string *payload = nullptr)
+    void makeRequest(const std::string url, const std::string method, const std::string *payload = nullptr, const std::string *cookie = nullptr)
     {
         requestCount++;
 
@@ -72,6 +72,11 @@ private:
             curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, payload->size());
         }
 
+        if (cookie != nullptr)
+        {
+            curl_easy_setopt(handle, CURLOPT_COOKIE, cookie->c_str());
+        }
+
         curl_easy_setopt(handle, CURLOPT_HTTPHEADER, list);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, discard);
 
@@ -93,7 +98,7 @@ private:
 
         if (httpCode < 200 || httpCode >= 300)
         {
-            std::cout << "🥀";
+            std::cout << "🥀" << httpCode;
         }
         else
         {
@@ -124,6 +129,6 @@ public:
     {
         const auto &url = this->config.endpoint + this->config.path;
 
-        this->makeRequest(url, this->config.method, &this->config.payload);
+        this->makeRequest(url, this->config.method, &this->config.payload, &this->config.cookie);
     }
 };

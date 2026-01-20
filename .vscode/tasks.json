@@ -8,6 +8,7 @@
         "-fcolor-diagnostics",
         "-fansi-escape-codes",
         "-g",
+        "-std=c++17",
         "-I${fileDirname}/src/**/*.hpp",
         "-I${fileDirname}/src/**/*.cpp",
         "${file}",
