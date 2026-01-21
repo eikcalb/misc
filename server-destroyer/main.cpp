@@ -56,9 +56,6 @@ int main(int argc, char *argv[])
                                  http.Do();
                                  // We do not care what the response is. We only want to make lots of requests.
                              });
-
-        // Potentially aid with backpressure.
-        std::this_thread::sleep_for(1ms);
     }
 
     // Stop pending threads.
