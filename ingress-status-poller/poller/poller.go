@@ -8,7 +8,9 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -34,7 +36,7 @@ const (
 )
 
 type PollerConfig struct {
-	endpoint string
+	endpoint *url.URL
 	ticker   *time.Ticker
 }
 
@@ -64,13 +66,18 @@ func getConfig() (c *PollerConfig, err error) {
 	}
 
 	ingressEndpoint := fmt.Sprintf(os.Getenv(ENV_INGRESS_ENDPOINT_PATTERN), env)
+	parsedURL, err := url.Parse(ingressEndpoint)
+	if err != nil {
+		return nil, errors.New("failed to parse Ingress endpoint")
+
+	}
 
 	ticker := time.NewTicker(*interval)
 
-	return &PollerConfig{endpoint: ingressEndpoint, ticker: ticker}, err
+	return &PollerConfig{endpoint: parsedURL, ticker: ticker}, err
 }
 
-func pingIngress(log *slog.Logger, ingressEndpoint string) {
+func pingIngress(log *slog.Logger, ingressEndpoint *url.URL) {
 	caCert, err := os.ReadFile(CA_PATH)
 	if err != nil {
 		log.Error(FAIL)
@@ -102,14 +109,21 @@ func pingIngress(log *slog.Logger, ingressEndpoint string) {
 		},
 	}
 
-	resp, err := client.Get(ingressEndpoint)
-	if err != nil || resp.StatusCode != 200 {
+	ips, err := net.LookupHost(ingressEndpoint.Hostname())
+	if err != nil {
 		log.Error(FAIL)
-		log.Debug("Failed to contact Ingress", "cause", err)
+		log.Debug("Failed to resolve Ingress endpoint IP", "cause", err)
 		return
 	}
 
-	log.Info(SUCCESS)
+	resp, err := client.Get(ingressEndpoint.String())
+	if err != nil || resp.StatusCode != 200 {
+		log.Error(FAIL)
+		log.Debug("Failed to contact Ingress", "cause", err, "ips", ips)
+		return
+	}
+
+	log.Info(SUCCESS, "ips", ips)
 	resp.Body.Close()
 }
 
@@ -122,7 +136,7 @@ func PollIngress(ctx context.Context, log *slog.Logger) (err error) {
 		return err
 	}
 
-	log.Info(fmt.Sprintf("Starting poller for endpoint: %s", config.endpoint))
+	log.Info(fmt.Sprintf("Starting poller for endpoint: %s", config.endpoint.String()))
 
 	for range config.ticker.C {
 		go pingIngress(log, config.endpoint)
