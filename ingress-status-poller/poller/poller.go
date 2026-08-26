@@ -52,7 +52,10 @@ func getConfig() (c *PollerConfig, err error) {
 	env := strings.TrimSpace(*environment)
 	if env != ENVIRONMENT_INT && env != ENVIRONMENT_TEST && env != ENVIRONMENT_LIVE {
 		fs.PrintDefaults()
-		return nil, errors.New("a valid environment must be provided")
+
+		errMsg := fmt.Sprintf("a valid environment must be provided, e.g. %s, %s or %s", ENVIRONMENT_INT, ENVIRONMENT_TEST, ENVIRONMENT_LIVE)
+
+		return nil, errors.New(errMsg)
 	}
 
 	ingressEndpointFormat := os.Getenv(ENV_INGRESS_ENDPOINT_PATTERN)
