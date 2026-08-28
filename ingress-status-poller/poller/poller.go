@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -109,21 +108,14 @@ func pingIngress(log *slog.Logger, ingressEndpoint *url.URL) {
 		},
 	}
 
-	ips, err := net.LookupHost(ingressEndpoint.Hostname())
-	if err != nil {
-		log.Error(FAIL)
-		log.Debug("Failed to resolve Ingress endpoint IP", "cause", err)
-		return
-	}
-
 	resp, err := client.Get(ingressEndpoint.String())
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(FAIL)
-		log.Debug("Failed to contact Ingress", "cause", err, "ips", ips)
+		log.Debug("Failed to contact Ingress", "cause", err)
 		return
 	}
 
-	log.Info(SUCCESS, "ips", ips)
+	log.Info(SUCCESS)
 	resp.Body.Close()
 }
 
